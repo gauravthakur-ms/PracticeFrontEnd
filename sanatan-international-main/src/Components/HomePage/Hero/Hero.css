@@ -1,0 +1,40 @@
+.brand-night {
+    background: radial-gradient(circle at center top, rgba(227, 123, 45, 0.2), transparent 45%), linear-gradient(160deg, rgba(9, 13, 24, 0.98), rgba(16, 23, 42, 0.96));
+}
+
+.brand-orb{
+    width: 420px;
+    height: 420px;
+    filter: blur(6px);
+    opacity: 0.8;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(240, 180, 90, 0.25), transparent 65%);
+}
+
+.brand-glass {
+    background: rgba(15, 23, 42, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(22px);
+}
+
+.lotus-motif {
+  width: 40px;
+  height: 40px;
+  background-color: rgb(228,140,58);
+
+  -webkit-mask: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 22C12 22 17 17.5 17 12C17 6.5 12 2 12 2C12 2 7 6.5 7 12C7 17.5 12 22Z'/%3E%3C/svg%3E") no-repeat center;
+  mask: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 22C12 22 17 17.5 17 12C17 6.5 12 2 12 2C12 2 7 6.5 7 12C7 17.5 12 22Z'/%3E%3C/svg%3E") no-repeat center;
+
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+.text-mist {
+    text-shadow: 0 6px 24px rgba(19, 24, 39, 0.25);
+}
+
+.gradient-gold {
+    background: linear-gradient(135deg, #B8860B 0%, #FFD700 50%, #B8860B 100%);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}

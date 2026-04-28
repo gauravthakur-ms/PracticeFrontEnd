@@ -81,7 +81,7 @@ const loginUser = asyncHandler(async (req, res) => {
   );
   const options = {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production", sameSite: "lax",
   };
   const loggedInUser = await User.findById(user._id).select(
     "-password -refreshToken -emailVerificationExpiry -emailVerificationToken -forgotPasswordExpiry -forgotPasswordToken",
@@ -115,28 +115,16 @@ const googleLoginSuccess = asyncHandler(async (req, res) => {
   );
   const options = {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production", sameSite: "lax",
   };
 
-  const loggedInUser = await User.findById(user._id).select(
-    "-password -refreshToken -emailVerificationExpiry -emailVerificationToken -forgotPasswordExpiry -forgotPasswordToken",
-  );
-
+  // Redirect back to the SPA. Frontend's bootstrap effect will call
+  // /auth/refresh-token using the refresh cookie we just set, then load the user.
+  const frontend = process.env.FRONTEND_URL || "http://localhost:5173";
   return res
-    .status(200)
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
-    .json(
-      new ApiResponse(
-        200,
-        {
-          user: loggedInUser,
-          accessToken,
-          refreshToken,
-        },
-        "Google login successful",
-      ),
-    );
+    .redirect(`${frontend}/auth/google/success`);
 });
 
 const logoutUser = asyncHandler(async (req, res) => {
@@ -153,7 +141,7 @@ const logoutUser = asyncHandler(async (req, res) => {
   );
   const options = {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production", sameSite: "lax",
   };
 
   return res
@@ -270,7 +258,7 @@ const deleteCurrentUser = asyncHandler(async (req, res) => {
 
   const options = {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production", sameSite: "lax",
   };
   return res
     .status(200)
@@ -374,7 +362,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
     const options = {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === "production", sameSite: "lax",
     };
 
     return res
