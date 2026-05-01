@@ -16,7 +16,7 @@ export default function AdminLayout({ title, action, children }) {
     user?.role === "super_admin" || user?.role === "customer_panel_admin";
   const items = NAV.filter((n) => !n.platformOnly || isPlatformAdmin);
   return (
-    <div className="min-h-screen bg-[#FAF8F3] pt-24 pb-16">
+    <div className="min-h-screen bg-[#FAF8F3] pt-32 pb-16">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex flex-col md:flex-row gap-6">
           <aside className="md:w-56 shrink-0">
