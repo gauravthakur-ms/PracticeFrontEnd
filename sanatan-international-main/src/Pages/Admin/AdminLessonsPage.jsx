@@ -52,21 +52,20 @@ export default function AdminLessonsPage() {
     try {
       let videoUrl = values.videoUrl?.trim() || "";
       if (!videoUrl && videoFile) {
-        // S3 presign flow
+        // S3 presign + direct PUT upload
         const { default: uploadService } = await import("../../services/upload.service");
         const presignRes = await uploadService.presignVideo({
           contentType: videoFile.type,
-          sizeBytes: videoFile.size,
           fileName: videoFile.name,
         });
-        const { url, fields, finalUrl } = presignRes.data?.data || {};
-        if (!url) throw new Error("Presign failed (S3 not configured on backend?)");
-        const fd = new FormData();
-        Object.entries(fields || {}).forEach(([k, v]) => fd.append(k, v));
-        fd.append("file", videoFile);
-        await fetch(url, { method: "POST", body: fd });
-        videoUrl = finalUrl;
-        setProgress(100);
+        const { uploadUrl, publicUrl } = presignRes.data?.data || {};
+        if (!uploadUrl || !publicUrl) {
+          throw new Error("Presign failed (S3 not configured on backend?)");
+        }
+        await uploadService.putToPresignedUrl(uploadUrl, videoFile, (pct) =>
+          setProgress(pct),
+        );
+        videoUrl = publicUrl;
       }
       await lessonService.createLesson(courseId, subjectId, {
         title: values.title,
@@ -135,7 +134,7 @@ export default function AdminLessonsPage() {
           </div>
           <div>
             <label className="block text-sm text-slate-700 mb-1">
-              Video URL (paste a direct/HLS URL — recommended if S3 is not set up)
+              Video URL (paste a direct/HLS URL — optional if uploading a file)
             </label>
             <input
               type="url"
@@ -146,7 +145,7 @@ export default function AdminLessonsPage() {
           </div>
           <div>
             <label className="block text-sm text-slate-700 mb-1">
-              ...or upload a file (requires backend S3 config)
+              ...or upload a video file (uploaded directly to S3)
             </label>
             <input
               type="file"

@@ -1,22 +1,27 @@
 import { Link, NavLink } from "react-router-dom";
+import { useAuth } from "../../store/authStore";
 
 const NAV = [
   { to: "/admin", label: "Dashboard", end: true },
   { to: "/admin/courses", label: "Courses" },
   { to: "/admin/reviews", label: "Reviews" },
   { to: "/admin/orders", label: "Orders" },
-  { to: "/admin/users", label: "Users" },
-  { to: "/admin/requests", label: "Admin Requests" },
+  { to: "/admin/users", label: "Users", platformOnly: true },
+  { to: "/admin/requests", label: "Admin Requests", platformOnly: true },
 ];
 
 export default function AdminLayout({ title, action, children }) {
+  const { user } = useAuth();
+  const isPlatformAdmin =
+    user?.role === "super_admin" || user?.role === "customer_panel_admin";
+  const items = NAV.filter((n) => !n.platformOnly || isPlatformAdmin);
   return (
     <div className="min-h-screen bg-[#FAF8F3] pt-24 pb-16">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex flex-col md:flex-row gap-6">
           <aside className="md:w-56 shrink-0">
             <nav className="bg-white rounded-xl p-3 border border-slate-100 sticky top-28">
-              {NAV.map((n) => (
+              {items.map((n) => (
                 <NavLink
                   key={n.to}
                   to={n.to}

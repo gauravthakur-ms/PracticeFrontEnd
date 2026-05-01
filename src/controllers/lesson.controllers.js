@@ -28,9 +28,17 @@ const createLesson = asyncHandler(async (req, res) => {
   const { course } = await loadCourseAndSubject(courseId, subjectId);
   ensureCourseOwnership(course, req.user);
 
+  let lessonOrder = order;
+  if (lessonOrder === undefined || lessonOrder === null || lessonOrder === "") {
+    const last = await Lesson.findOne({ subject: subjectId })
+      .sort({ order: -1 })
+      .select("order");
+    lessonOrder = last ? (last.order || 0) + 1 : 0;
+  }
+
   const lesson = await Lesson.create({
     title,
-    order,
+    order: lessonOrder,
     videoUrl,
     duration: duration || 0,
     subject: subjectId,

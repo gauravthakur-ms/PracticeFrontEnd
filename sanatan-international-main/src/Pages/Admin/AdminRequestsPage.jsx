@@ -64,15 +64,25 @@ export default function AdminRequestsPage() {
         <div className="space-y-3">
           {filtered.map((r) => (
             <div key={r._id} className="bg-white rounded-xl border border-slate-100 p-4">
-              <div className="flex items-start justify-between mb-2">
-                <div>
+              <div className="flex items-start justify-between mb-2 gap-3">
+                <div className="min-w-0">
                   <p className="font-medium text-slate-800">
-                    {r.user?.userName || r.user?.email || "User"}
+                    {r.user?.userName || r.user?.fullName || r.user?.email || "Unknown user"}
                   </p>
-                  <p className="text-xs text-slate-500">{r.user?.email}</p>
+                  {r.user?.email && (
+                    <p className="text-xs text-slate-500 truncate">{r.user.email}</p>
+                  )}
+                  {r.user?._id && (
+                    <p className="text-[10px] text-slate-400 mt-0.5 font-mono">
+                      ID: {r.user._id}
+                    </p>
+                  )}
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    Requested {r.createdAt ? new Date(r.createdAt).toLocaleString() : ""}
+                  </p>
                 </div>
-                <span className="text-xs uppercase tracking-wide bg-slate-100 px-2 py-1 rounded">
-                  {r.role}
+                <span className="text-xs uppercase tracking-wide bg-orange-100 text-orange-700 px-2 py-1 rounded whitespace-nowrap">
+                  {r.requestedRole || r.role || "—"}
                 </span>
               </div>
               {r.reason && <p className="text-sm text-slate-600 mb-3">{r.reason}</p>}

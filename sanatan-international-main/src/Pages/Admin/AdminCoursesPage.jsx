@@ -92,8 +92,9 @@ export default function AdminCoursesPage() {
                     <Link
                       to={`/admin/courses/${c._id}/subjects`}
                       className="text-slate-700 hover:underline"
+                      title="Manage subjects, lessons & video uploads"
                     >
-                      Subjects
+                      Subjects &amp; Videos
                     </Link>
                     <button
                       onClick={() => setConfirmId(c._id)}

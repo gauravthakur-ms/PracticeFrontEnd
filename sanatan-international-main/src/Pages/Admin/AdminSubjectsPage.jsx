@@ -78,6 +78,10 @@ export default function AdminSubjectsPage() {
         </Link>
       }
     >
+      <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4 text-sm text-slate-700">
+        Add a subject below, then click <strong>Lessons</strong> next to it to upload videos for that subject.
+      </div>
+
       <form onSubmit={addSubject} className="bg-white rounded-xl border border-slate-100 p-4 mb-5 flex gap-2">
         <input
           value={newTitle}
@@ -128,9 +132,9 @@ export default function AdminSubjectsPage() {
                     </span>
                     <Link
                       to={`/admin/courses/${courseId}/subjects/${s._id}/lessons`}
-                      className="text-sm text-orange-500 hover:underline"
+                      className="text-sm bg-orange-100 hover:bg-orange-200 text-orange-700 px-3 py-1 rounded font-medium"
                     >
-                      Lessons
+                      Lessons / Videos
                     </Link>
                     <button
                       onClick={() => {

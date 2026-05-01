@@ -420,7 +420,9 @@ const fetchAdminRequest = asyncHandler(async (req, res) => {
   if (req.user?.role != "super_admin") {
     throw new ApiError(400, "Admin request is fetched only by super admin");
   }
-  const adminRequest = await AdminRequest.find().sort({ createdAt: -1 });
+  const adminRequest = await AdminRequest.find()
+    .populate("user", "userName email fullName avatar")
+    .sort({ createdAt: -1 });
   return res
     .status(200)
     .json(

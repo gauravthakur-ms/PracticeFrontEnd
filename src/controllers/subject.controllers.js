@@ -22,9 +22,17 @@ const createSubject = asyncHandler(async (req, res) => {
   if (!course) throw new ApiError(404, "Course not found");
   ensureCourseOwnership(course, req.user);
 
+  let subjectOrder = order;
+  if (subjectOrder === undefined || subjectOrder === null || subjectOrder === "") {
+    const last = await Subject.findOne({ course: course._id })
+      .sort({ order: -1 })
+      .select("order");
+    subjectOrder = last ? (last.order || 0) + 1 : 0;
+  }
+
   const subject = await Subject.create({
     title,
-    order,
+    order: subjectOrder,
     course: course._id,
     createdBy: req.user._id,
   });

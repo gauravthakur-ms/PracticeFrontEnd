@@ -1,17 +1,12 @@
-import api, { multipartApi } from "../lib/axios";
+import api from "../lib/axios";
 
 const course = {
   getAllCourses: (params = {}) => api.get("/courses", { params }),
   getCourseById: (courseId) => api.get(`/courses/${courseId}`),
-  // backend route currently lacks multer for thumbnail; send JSON. multipart still works (extra files ignored)
-  createCourse: (data) =>
-    data instanceof FormData
-      ? multipartApi.post("/courses", data)
-      : api.post("/courses", data),
-  updateCourse: (courseId, data) =>
-    data instanceof FormData
-      ? multipartApi.put(`/courses/${courseId}`, data)
-      : api.put(`/courses/${courseId}`, data),
+  // Thumbnails are uploaded separately via uploadService.uploadThumbnail and the
+  // resulting metadata is included in the JSON body as `thumbnail`.
+  createCourse: (data) => api.post("/courses", data),
+  updateCourse: (courseId, data) => api.put(`/courses/${courseId}`, data),
   deleteCourse: (courseId) => api.delete(`/courses/${courseId}`),
 
   // purchased

@@ -7,17 +7,16 @@ import { ApiResponse } from "../utils/api-response.js";
 
 //create course
 const createCourse = asyncHandler(async (req, res) => {
-  const { title, label, description, totalPrice, discountPercent } = req.body;
+  const { title, label, description, totalPrice, discountPercent, thumbnail } =
+    req.body;
 
-  const files = req.files || [];
-
-  const attachments = files.map((file) => {
-    return {
-      url: `${process.env.SERVER_URL}/images/${file.originalname}`,
-      mimetype: file.mimetype,
-      size: file.size,
-    };
-  });
+  // Frontend uploads the thumbnail to S3 first via POST /api/v1/uploads/thumbnail
+  // and then submits the resulting metadata array here.
+  const thumbnailArr = Array.isArray(thumbnail)
+    ? thumbnail
+    : thumbnail
+      ? [thumbnail]
+      : [];
 
   const payableAmount = Course.calculatePayableAmount({
     totalPrice,
@@ -31,7 +30,7 @@ const createCourse = asyncHandler(async (req, res) => {
     totalPrice,
     discountPercent,
     payableAmount,
-    thumbnail: attachments,
+    thumbnail: thumbnailArr,
     createdBy: new mongoose.Types.ObjectId(req.user._id),
   });
 
@@ -133,16 +132,15 @@ const getCourseById = asyncHandler(async (req, res) => {
 
 const updateCourse = asyncHandler(async (req, res) => {
   const courseId = req.params.courseId;
-  const { title, label, description, totalPrice, discountPercent } = req.body;
+  const { title, label, description, totalPrice, discountPercent, thumbnail } =
+    req.body;
 
-  const files = req.files || [];
-  const attachments = files.map((file) => {
-    return {
-      url: `${process.env.SERVER_URL}/images/${file.originalname}`,
-      mimetype: file.mimetype,
-      size: file.size,
-    };
-  });
+  const thumbnailArr = Array.isArray(thumbnail)
+    ? thumbnail
+    : thumbnail
+      ? [thumbnail]
+      : null;
+
   const payableAmount = Course.calculatePayableAmount({
     totalPrice,
     discountPercent,
@@ -157,7 +155,7 @@ const updateCourse = asyncHandler(async (req, res) => {
       totalPrice,
       discountPercent,
       payableAmount,
-      ...(files.length && { thumbnail: attachments }),
+      ...(thumbnailArr && thumbnailArr.length && { thumbnail: thumbnailArr }),
     },
     { new: true },
   );

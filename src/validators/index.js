@@ -115,7 +115,7 @@ const updatePurchasedCourseStatusValidator = () => {
 
 const createSubjectValidator = () => [
   body("title").trim().notEmpty().withMessage("title is required"),
-  body("order").isInt({ min: 0 }).withMessage("order must be a non-negative integer"),
+  body("order").optional().isInt({ min: 0 }).withMessage("order must be a non-negative integer"),
 ];
 
 const updateSubjectValidator = () => [
@@ -125,7 +125,7 @@ const updateSubjectValidator = () => [
 
 const createLessonValidator = () => [
   body("title").trim().notEmpty().withMessage("title is required"),
-  body("order").isInt({ min: 0 }).withMessage("order must be a non-negative integer"),
+  body("order").optional().isInt({ min: 0 }).withMessage("order must be a non-negative integer"),
   body("videoUrl").trim().notEmpty().withMessage("videoUrl is required").isURL().withMessage("videoUrl must be a URL"),
   body("duration").optional().isInt({ min: 0 }).withMessage("duration must be a positive integer (ms)"),
 ];

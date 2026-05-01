@@ -4,13 +4,17 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import AdminLayout from "./AdminLayout";
 import courseService from "../../services/course.service";
+import uploadService from "../../services/upload.service";
 import LoadingSpinner from "../../Components/shared/LoadingSpinner";
+import ProgressBar from "../../Components/shared/ProgressBar";
 
 export default function AdminCourseFormPage() {
   const { courseId } = useParams();
   const isEdit = !!courseId;
   const navigate = useNavigate();
   const [thumbnailFile, setThumbnailFile] = useState(null);
+  const [existingThumbnail, setExistingThumbnail] = useState(null);
+  const [thumbProgress, setThumbProgress] = useState(0);
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const { register, handleSubmit, watch, reset } = useForm({
@@ -43,6 +47,7 @@ export default function AdminCourseFormPage() {
             totalPrice: c.totalPrice || 0,
             discountPercent: c.discountPercent || 0,
           });
+          setExistingThumbnail(c.thumbnail?.[0] || null);
         }
       } catch (err) {
         toast.error(err.response?.data?.message || "Failed to load");
@@ -65,25 +70,37 @@ export default function AdminCourseFormPage() {
         totalPrice: Number(values.totalPrice),
         discountPercent: Number(values.discountPercent),
       };
-      let body = payload;
+
       if (thumbnailFile) {
-        const fd = new FormData();
-        Object.entries(payload).forEach(([k, v]) => fd.append(k, v));
-        fd.append("thumbnail", thumbnailFile);
-        body = fd;
+        setThumbProgress(0);
+        const res = await uploadService.uploadThumbnail(thumbnailFile, (e) => {
+          if (e.total) setThumbProgress(Math.round((e.loaded / e.total) * 100));
+        });
+        const data = res.data?.data;
+        if (!data?.url) throw new Error("Thumbnail upload failed");
+        payload.thumbnail = [
+          {
+            url: data.url,
+            key: data.key,
+            mimetype: data.mimetype,
+            size: data.size,
+          },
+        ];
       }
+
       if (isEdit) {
-        await courseService.updateCourse(courseId, body);
+        await courseService.updateCourse(courseId, payload);
         toast.success("Course updated");
       } else {
-        await courseService.createCourse(body);
+        await courseService.createCourse(payload);
         toast.success("Course created");
       }
       navigate("/admin/courses");
     } catch (err) {
-      toast.error(err.response?.data?.message || "Save failed");
+      toast.error(err.response?.data?.message || err.message || "Save failed");
     } finally {
       setSaving(false);
+      setThumbProgress(0);
     }
   };
 
@@ -97,6 +114,21 @@ export default function AdminCourseFormPage() {
 
   return (
     <AdminLayout title={isEdit ? "Edit Course" : "New Course"}>
+      {isEdit && (
+        <div className="bg-white border border-orange-200 rounded-xl p-4 mb-5 max-w-2xl flex items-center justify-between gap-3">
+          <div className="text-sm text-slate-700">
+            <strong>Manage course content:</strong> add subjects and upload videos
+            for each lesson under this course.
+          </div>
+          <button
+            type="button"
+            onClick={() => navigate(`/admin/courses/${courseId}/subjects`)}
+            className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-md whitespace-nowrap"
+          >
+            Subjects &amp; Videos →
+          </button>
+        </div>
+      )}
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="bg-white rounded-xl border border-slate-100 p-6 max-w-2xl space-y-4"
@@ -109,12 +141,23 @@ export default function AdminCourseFormPage() {
             onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
             className="text-sm"
           />
-          {thumbnailFile && (
+          {thumbnailFile ? (
             <img
               src={URL.createObjectURL(thumbnailFile)}
               alt=""
               className="mt-2 w-48 h-28 object-cover rounded"
             />
+          ) : existingThumbnail?.url ? (
+            <img
+              src={existingThumbnail.url}
+              alt="current thumbnail"
+              className="mt-2 w-48 h-28 object-cover rounded"
+            />
+          ) : null}
+          {saving && thumbnailFile && (
+            <div className="mt-2">
+              <ProgressBar value={thumbProgress} label="Uploading thumbnail..." />
+            </div>
           )}
         </div>
 
